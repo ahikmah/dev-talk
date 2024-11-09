@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 
 import React from "react";
+import { auth } from "auth";
 import localFont from "next/font/local";
 import ThemeProvider from "@/context/theme";
-import { Navbar } from "@/components/navigation/navbar";
+import { SessionProvider } from "next-auth/react";
+import { Toaster } from "@/components/ui/toaster";
 
 import "./globals.css";
 
@@ -25,26 +27,29 @@ export const metadata: Metadata = {
     "A community-driven platform for developers. Ask questions, get answers, and engage with the community. Don't miss out on the latest trends and technologies in the world of software development.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${spaceGrotesk.variable}  antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+      <SessionProvider session={session}>
+        <body
+          className={`${inter.variable} ${spaceGrotesk.variable}  antialiased`}
         >
-          <Navbar />
-          {children}
-        </ThemeProvider>
-      </body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+          <Toaster />
+        </body>
+      </SessionProvider>
     </html>
   );
 }
